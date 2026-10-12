@@ -20,6 +20,7 @@ The failure modes here are real and documented in the skills themselves:
 | Skill | What it does |
 |---|---|
 | [`secure-addon-install`](skills/secure-addon-install/SKILL.md) | Snapshot → install → health-check → rollback for any skill/plugin/MCP/package, with a pre-install review checklist and real war stories |
+| [`llm-attack-surface`](skills/llm-attack-surface/SKILL.md) | 🗺️ Offense/defense map for LLM & agent security: prompt injection (direct/indirect), tool abuse, exfiltration, supply chain — plus a red-team checklist for auditing your own agent |
 
 Compatible with Claude Code, Hermes Agent, and any harness using the open SKILL.md standard.
 
@@ -31,6 +32,7 @@ Compatible with Claude Code, Hermes Agent, and any harness using the open SKILL.
 
 ## Roadmap
 
+- [x] ~~`llm-attack-surface` — LLM/agent attack taxonomy + red-team checklist~~ ✅ shipped
 - [ ] `mcp-permission-audit` — auditing MCP server trust levels & tool permissions
 - [ ] `silent-failure-sweep` — periodic scan for swallowed stderr / stale artifacts / dead probes across cron jobs
 - [ ] `skill-review-checklist` — deeper vetting workflow for third-party SKILL.md packages
