@@ -22,6 +22,7 @@ The failure modes here are real and documented in the skills themselves:
 | [`secure-addon-install`](skills/secure-addon-install/SKILL.md) | Snapshot → install → health-check → rollback for any skill/plugin/MCP/package, with a pre-install review checklist and real war stories |
 | [`llm-attack-surface`](skills/llm-attack-surface/SKILL.md) | 🗺️ Offense/defense map for LLM & agent security: prompt injection (direct/indirect), tool abuse, exfiltration, supply chain — plus a red-team checklist for auditing your own agent |
 | [`silent-failure-sweep`](skills/silent-failure-sweep/SKILL.md) | 🔍 Monthly sweep for silent failures in cron jobs & pipelines: swallowed stderr, existence-only success checks, stale artifacts, dead probes — with the war stories behind each |
+| [`mcp-permission-audit`](skills/mcp-permission-audit/SKILL.md) | 🔑 Audit wired-in MCP servers the way they actually fail: who can change their code, how many tools they expose, what approves calls, and **what can fire while nobody is watching** |
 
 Compatible with Claude Code, Hermes Agent, and any harness using the open SKILL.md standard.
 
@@ -34,7 +35,7 @@ Compatible with Claude Code, Hermes Agent, and any harness using the open SKILL.
 ## Roadmap
 
 - [x] ~~`llm-attack-surface` — LLM/agent attack taxonomy + red-team checklist~~ ✅ shipped
-- [ ] `mcp-permission-audit` — auditing MCP server trust levels & tool permissions
+- [x] ~~`mcp-permission-audit` — auditing MCP server trust levels & tool permissions~~ ✅ shipped
 - [x] ~~`silent-failure-sweep` — periodic scan for swallowed stderr / stale artifacts / dead probes~~ ✅ shipped
 - [ ] `skill-review-checklist` — deeper vetting workflow for third-party SKILL.md packages
 
