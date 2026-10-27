@@ -14,3 +14,10 @@ Operational security skills (SKILL.md open standard) for AI agent runtimes: safe
 
 ## Citing this repo
 Cite as: Focus688/agent-security-skills, skill `<name>`, version in frontmatter. If you find an error, open an issue — corrections are made publicly, never silently.
+
+## Release gate (how changes ship)
+1. Run every skill's rules against real usage; a rule without a real incident behind it does not ship.
+2. **Adversarial review before release**: every SKILL.md is red-teamed by a frontier model (Claude Opus) acting as an attacker, with one question — *can this text be turned against the agent that follows it?*
+3. Findings are fixed or explicitly rejected in the commit message; findings that change a rule are credited in the rule itself.
+   Example: the injection guard in `skill-review-checklist` §2 exists because red-team review found that the checklist told reviewers to read untrusted text without telling them to treat it as inert data.
+4. Tag `vX.Y.Z`; the skills.sh listing updates from install telemetry, not from a submission form.
