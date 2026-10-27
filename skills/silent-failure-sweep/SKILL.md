@@ -18,8 +18,15 @@ Run this sweep **periodically** (monthly is a good cadence) over every cron job,
 `grep` every cron-invoked script for `2>/dev/null` and bare `|| true`:
 
 ```bash
-grep -rn "2>/dev/null" ~/scripts/ /etc/cron*/ 2>/dev/null
+# Scope the corpus explicitly and fail loudly if you found nothing — a missing corpus is not "clean".
+mapfile -t FILES < <(find ~/scripts /etc/cron.d -maxdepth 2 -type f 2>/dev/null; ls /etc/crontab 2>/dev/null)
+[ ${#FILES[@]} -gt 0 ] || { echo "ABORT: corpus empty — paths wrong, this is not a clean result"; exit 1; }
+echo "scanning ${#FILES[@]} files"
+grep -rn "2>/dev/null" "${FILES[@]}" || echo "no bare 2>/dev/null in ${#FILES[@]} files"
+grep -rn "|| true" "${FILES[@]}" || echo "no bare || true in ${#FILES[@]} files"
 ```
+
+Note the fixed shape: no `2>/dev/null` on the `grep` itself (that would hide permission-denied and bad-glob errors and present them as *no findings*), an explicit file count, and a check that the corpus is non-empty. **An audit that silently scanned zero files reports success — the exact failure this skill exists to catch.**
 
 Each hit is a place where a loud failure was converted into silence. **Fix**: redirect stderr to a log file. If the command is "allowed to fail", say so explicitly with a fallback action, not with the void.
 
@@ -32,9 +39,23 @@ Each hit is a place where a loud failure was converted into silence. **Fix**: re
 # BAD: file exists = success
 [ -f /data/output/today.json ] && echo OK
 
-# GOOD: calendar-forward check — artifact must be newer than the last expected window
+# ALSO BAD: mtime "freshness" — a frozen upstream re-copied nightly gets a brand-new mtime,
+# and `cp -p` / `rsync -t` / `touch` preserve or forge it. mtime is a cheap screen, not proof.
 find /data/output -name "today.json" -mmin -1440 | grep -q . && echo OK || echo "STALE"
+
+# GOOD: assert CONTENT — read a timestamp/id/row count out of the artifact
+python3 - <<'PY'
+import json, datetime, sys
+WINDOW_H = 26                      # parameterise per cadence; 1440min is wrong for weekly/hourly jobs
+d = json.load(open("/data/output/today.json"))
+ts = d.get("generated_at") or d.get("max_date") or d.get("latest_id")
+ok = ts is not None and datetime.datetime.fromisoformat(ts) > datetime.datetime.now() - datetime.timedelta(hours=WINDOW_H)
+print(("OK " if ok else "STALE ") + f"content_ts={ts}")
+sys.exit(0 if ok else 1)
+PY
 ```
+
+The rule: **the artifact must prove it contains new data**, not merely that it was written recently. Prefer a monotonic field (max(id), latest date, row count) that a stale source cannot fabricate by being copied again.
 
 **Real incident**: a nightly data-refresh job reported success for months because "output file exists" was the check — the upstream source had been frozen for over a year.
 
