@@ -28,20 +28,27 @@ Use this skill **before installing any third-party capability** (skill, plugin, 
 ### Phase 0 — Snapshot (mandatory, before touching anything)
 
 ```bash
+set -u   # a failed snapshot is worse than no snapshot: see the gate below
+
 # ① Gateway health baseline (state + PID + version)
 systemctl --user is-active <your-gateway-unit>   # adapt to your harness
 ps aux | grep "<gateway process>" | grep -v grep
 <agent> --version
 
-# ② Dependency list (mandatory before any pip install — enables diff rollback)
-<agent-venv>/bin/pip freeze > /tmp/deps-before.txt
-wc -l /tmp/deps-before.txt
+# ② Dependency list — MANDATORY GATE before any pip install
+<agent-venv>/bin/pip freeze > /tmp/deps-before.txt || { echo "ABORT: pip freeze failed"; exit 1; }
+BEFORE=$(wc -l < /tmp/deps-before.txt)
+[ "$BEFORE" -ge 10 ] || { echo "ABORT: snapshot implausibly small ($BEFORE lines) — wrong venv?"; exit 1; }
+echo "baseline: $BEFORE packages"
 
-# ③ Skills / plugins / MCP / cron baselines
-<agent> skills list
-<agent> mcp list
-<agent> cron list > /tmp/cron-before.txt
+# ③ Skills / plugins / MCP / cron baselines — same gate
+<agent> skills list > /tmp/skills-before.txt || { echo "ABORT: skills list failed"; exit 1; }
+[ -s /tmp/skills-before.txt ] || { echo "ABORT: empty skills baseline"; exit 1; }
+<agent> mcp list   > /tmp/mcp-before.txt    || { echo "ABORT: mcp list failed"; exit 1; }
+<agent> cron list  > /tmp/cron-before.txt   || { echo "ABORT: cron list failed"; exit 1; }
 ```
+
+**Why the gates matter more than the snapshot.** The rollback primitive is a *diff against the "before" file*. If `pip freeze` silently failed (wrong venv, permissions, non-pip install), the file is empty — and a later diff against an empty file reads as *"every installed package is new"*, which the rollback step would then uninstall. **An empty or implausibly small snapshot means no rollback is possible: stop, do not install.** A snapshot you cannot trust is more dangerous than no snapshot, because it looks like a safety net.
 
 Snapshots can live in `/tmp` — they're for troubleshooting only. **Exception**: never put scripts referenced by systemd in `/tmp` (real incident: a unit pointed at a `/tmp` script, reboot wiped it, service retried **18,906 times** before anyone noticed).
 
