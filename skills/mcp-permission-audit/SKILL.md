@@ -74,7 +74,7 @@ for srv,v in c.items():
 
 **Two traps in this output.** (a) The count is lower than the runtime's real surface: protocol-level tools (`list_resources`, `read_resource`) are added by the harness and don't appear here. (b) A server you uninstalled can sit in the cache indefinitely — so any audit that trusts the cache alone will report capability that no longer exists, and miss capability that never got cached. Cross-check the cache against the configured `mcp_servers` block, and only trust the intersection.
 
-Then diff the verified list against the tools your workflows actually call (`grep` your cron prompts / skill files for `mcp__<server>__`). The difference is your unenumerated surface.
+Then diff the verified list against the tools your workflows actually call. **Scope the grep to executable content** — cron command lines, scripts, code blocks — and exclude `*.md` prose: this skill (and every other doc) contains the literal string `mcp__<server>__`, so a naive grep matches documentation, inflates the "used" set, and silently suppresses the finding this section exists to produce. Print the match sites so a human can confirm each one is a real call, not an example.
 
 **Rule:** every exposed tool that no workflow ever calls is pure downside — unenumerated capability with none of the benefit. If your runtime supports an allowlist, use it; if it doesn't, that fact belongs in the report.
 
