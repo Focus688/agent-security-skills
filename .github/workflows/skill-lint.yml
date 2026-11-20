@@ -1,0 +1,31 @@
+name: skill-lint
+
+# Makes this repo's own review rules a green light:
+# frontmatter fields, hidden characters, and unauthorised HTML comments.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Lint every skills/*/SKILL.md
+        run: python3 scripts/skill_lint.py
+
+      - name: Verify machine-readable index exists
+        run: |
+          test -f llms.txt || { echo "llms.txt missing"; exit 1; }
+          test -f AGENTS.md || { echo "AGENTS.md missing"; exit 1; }
+          echo "llms.txt + AGENTS.md present"

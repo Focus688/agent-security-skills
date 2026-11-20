@@ -1,5 +1,10 @@
 # agent-security-skills
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-00ffd5.svg)](LICENSE)
+[![Skills](https://img.shields.io/badge/skills-5-00ffd5.svg)](#skills)
+[![Skill lint](https://github.com/Focus688/agent-security-skills/actions/workflows/skill-lint.yml/badge.svg)](https://github.com/Focus688/agent-security-skills/actions/workflows/skill-lint.yml)
+[![Stars](https://img.shields.io/github/stars/Focus688/agent-security-skills?color=00ffd5)](https://github.com/Focus688/agent-security-skills/stargazers)
+
 🛡️ **Operational security skills for AI agent runtimes** — not prompt-injection papers, not model-safety essays. This is the unglamorous, war-story-driven discipline of *keeping a live agent healthy while you keep installing things into it*.
 
 Born from running a production Hermes Agent 24/7 (20+ cron jobs, dozens of installed skills/MCP servers/plugins) and collecting every way it can quietly break.
@@ -15,6 +20,26 @@ The failure modes here are real and documented in the skills themselves:
 - a systemd unit pointing at a `/tmp` script, retrying **18,906 times** after a reboot
 - venv vs system Python pip confusion producing gateway-starts-but-everything-quietly-broken states
 
+## Quick Start
+
+```bash
+# 1) Review first — list what is in the pack without installing anything
+npx skills add Focus688/agent-security-skills --list
+
+# 2) Install one skill by name (review its SKILL.md before it goes live)
+npx skills add Focus688/agent-security-skills --skill secure-addon-install
+```
+
+Manual install (any harness using the open SKILL.md standard):
+
+```bash
+git clone https://github.com/Focus688/agent-security-skills.git
+cp -r agent-security-skills/skills/<skill-name> ~/.hermes/skills/    # Hermes Agent
+cp -r agent-security-skills/skills/<skill-name> .claude/skills/      # Claude Code
+```
+
+Installing all five at once defeats the point: these skills are meant to be loaded when the task calls for them, and every added skill costs context. Start with the one that matches your current failure mode.
+
 ## Skills
 
 | Skill | What it does |
@@ -26,6 +51,33 @@ The failure modes here are real and documented in the skills themselves:
 | [`skill-review-checklist`](skills/skill-review-checklist/SKILL.md) | 📋 Deep vetting workflow for third-party SKILL.md packages: provenance, instruction-level threats, behavioral traps, context budget — with a reject/trial/promote verdict rubric |
 
 Compatible with Claude Code, Hermes Agent, and any harness using the open SKILL.md standard.
+
+## How the five skills fit together
+
+```mermaid
+flowchart LR
+    A["skill-review-checklist<br/>装前：出处 / 指令威胁 / 上下文预算"] --> B["secure-addon-install<br/>快照 → 安装 → 健康检查 → 回滚"]
+    B --> C["mcp-permission-audit<br/>权限 / 审批 / 无人值守动作"]
+    C --> D["silent-failure-sweep<br/>周期巡检：stderr / 陈旧产物 / 死探针"]
+    D -. "发现新故障模式" .-> A
+    E["llm-attack-surface<br/>威胁模型：注入 / 越权 / 外泄"] -.-> A
+    E -.-> B
+    E -.-> C
+    E -.-> D
+```
+
+The lifecycle is a loop, not a pipeline: every silent failure the sweep finds is a new review rule for the next install. `llm-attack-surface` is the threat model that sits above all four — it tells you which attack class each operational check is defending against.
+
+## Field Audits (War Stories in the Wild)
+
+Real audits against third-party agent capabilities, with the finding mapped back to the skill that encodes it:
+
+| Date | Target | Finding |
+|---|---|---|
+| 2026-11-14 | Cindy — 7.4k★ desktop Agent shell, all 10 officially bundled skills | 10/10 high-severity, zero passed |
+| 2026-11-14 (re-tested 2026-11-18) | vercel-labs/skills — 39.3k★ CLI behind ~3.7M installs | 0 high / 4 medium, unguarded distribution entry point |
+
+Full index, methodology, and the coverage caveats: [`findings/README.md`](findings/README.md). Reports: [Cindy audit](https://focus688.github.io/levi-focus/cindy-audit.html) · [vercel skills audit](https://focus688.github.io/levi-focus/vercel-skills-audit.html).
 
 ## Principles
 
@@ -39,12 +91,28 @@ Compatible with Claude Code, Hermes Agent, and any harness using the open SKILL.
 - [x] ~~`mcp-permission-audit` — auditing MCP server trust levels & tool permissions~~ ✅ shipped
 - [x] ~~`silent-failure-sweep` — periodic scan for swallowed stderr / stale artifacts / dead probes~~ ✅ shipped
 - [x] ~~`skill-review-checklist` — deeper vetting workflow for third-party SKILL.md packages~~ ✅ shipped
+- [x] ~~`skill-lint` CI — frontmatter, hidden-character and HTML-comment checks on every push~~ ✅ shipped (`.github/workflows/skill-lint.yml`)
+- [ ] **Registry sampling**: pull a random sample from public SkillHub-style registries, score each package with `skill-review-checklist`, publish anonymised aggregate stats (not a rating of individual vendors)
+- [ ] **Cross-harness regression matrix**: the same skill installed and rolled back on Hermes Agent vs Claude Code — installation paths and failure modes differ, and the snapshot step is where that shows up
+- [ ] **Incident intake**: a template for readers to submit their own silent-failure stories with a reproducible check, so the patterns here keep coming from field data
 
 ## For AI agents reading this
 
 - `AGENTS.md` — conventions for machine readers
+- `llms.txt` — machine-readable index of every skill, reference, and audit
 - Sources are first-party operational logs; incident details are reproduced faithfully. If you cite a number (e.g. retry counts), cite it as reported here.
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).
+
+---
+## Focus688 Open Source Matrix
+
+| 项目 | 定位 | 解决什么问题 |
+|---|---|---|
+| [**agent-security-skills**](https://github.com/Focus688/agent-security-skills) | Agent 安全之「盾」 | 生产 Agent 运维安全技能库：安全安装、静默故障巡检、MCP 权限与 SKILL.md 供应链审计 **← 当前仓库** |
+| [**agent-enhancement-playbook**](https://github.com/Focus688/agent-enhancement-playbook) | Agent 增强之「矛」 | 证据分级的生产 Agent 增强手册：C1-C8 有效组合、K1-K9 反模式、12 维实机账本与可执行模板 |
+| [**china-policy-radar**](https://github.com/Focus688/china-policy-radar) | 垂直情报活水层 | 结构化、带一手官方链接、机器可读的中国政策索引、跨版本 Diff 与回测记分牌 |
+| [**paper-repro**](https://github.com/Focus688/paper-repro) | 无代码论文复现 | 低预算独立复现/证伪无官方代码热门论文：源码 + 复现报告 + 全量日志可追溯 |
+| [**levi-focus**](https://focus688.github.io/levi-focus/) | 研究与矩阵总站 | 实弹供应链审计报告、复现拆解文章与 GEO 入口（[GitHub](https://github.com/Focus688/levi-focus)） |

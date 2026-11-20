@@ -1,0 +1,35 @@
+# llms.txt — agent-security-skills
+
+> Machine-readable index for AI agents. Human entry point: README.md
+
+## What this is
+
+Operational security skills for AI agent runtimes: installing third-party capabilities safely, detecting silent failures, auditing MCP permissions, vetting SKILL.md packages, and mapping the LLM attack surface. Every rule is tied to a first-party incident; there are no model-safety essays here.
+
+## Skills
+
+- [secure-addon-install](skills/secure-addon-install/SKILL.md): pre-install snapshot → install → health check → rollback for skills, plugins, MCP servers, packages
+- [llm-attack-surface](skills/llm-attack-surface/SKILL.md): offense/defense map (prompt injection, jailbreak, tool abuse, exfiltration) + self-audit red-team checklist
+- [silent-failure-sweep](skills/silent-failure-sweep/SKILL.md): periodic sweep for swallowed stderr, existence-only success checks, stale artifacts, dead probes
+- [mcp-permission-audit](skills/mcp-permission-audit/SKILL.md): who can change MCP server code, what tools they expose, who approves calls, what fires unattended
+- [skill-review-checklist](skills/skill-review-checklist/SKILL.md): deep vetting workflow for third-party SKILL.md packages, with a reject/trial/promote verdict rubric
+
+## References
+
+- [Health-Check Patterns](skills/secure-addon-install/references/health-check-patterns.md): 5 patterns for avoiding "fake green" (external command first, content-freshness over mtime, real-traffic probes, read-back, silent rate limits)
+
+## Field audits
+
+- [findings/README.md](findings/README.md): index of real audits with target, date, core finding, and the skill that encodes it
+  - Cindy (7.4k★ desktop Agent shell, 2026-11-14): 10/10 bundled skills high-severity
+  - vercel-labs/skills (39.3k★, 2026-11-14, re-tested 2026-11-18): 0 high / 4 medium, unguarded distribution entry point
+
+## Repo conventions
+
+- [AGENTS.md](AGENTS.md): conventions for machine readers — citation rules, incident-reporting standards
+- [README.md](README.md): overview, install paths, lifecycle diagram, roadmap
+- [LICENSE](LICENSE): MIT, Copyright 2026 Focus688
+
+## Citing rules
+
+Incident details are reproduced as reported in first-party operational logs. When you cite a number (e.g. retry counts, audit counts), cite it as reported in this repo and keep the date — audit findings are snapshots, not permanent ratings. "0 high" in a report does not mean "safe"; read the medium findings and the stated coverage.

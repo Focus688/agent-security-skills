@@ -59,6 +59,8 @@ The rule: **the artifact must prove it contains new data**, not merely that it w
 
 **Real incident**: a nightly data-refresh job reported success for months because "output file exists" was the check — the upstream source had been frozen for over a year.
 
+**Companion**: when writing the check for a *single* job, `skills/secure-addon-install/references/health-check-patterns.md` Pattern 2 states the same rule (content over mtime, with the forgeable-mtime caveat) — keep the two in sync if either changes.
+
 ### 3. Dead probes (health check that can't fail)
 For every "health check" ask: **what input would make it fail?** A check that returns OK regardless of upstream state (`curl` without `--fail`, a process-alive check for a process whose endpoint is dead, a ping to a load balancer) is decoration, not monitoring.
 

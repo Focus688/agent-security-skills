@@ -15,18 +15,33 @@ A health check that passes while the underlying capability is broken is worse th
 
 Never route stderr to the void in automated scripts. Send it to a log file.
 
-## Pattern 2: Artifact must be calendar-forward, not merely present
+## Pattern 2: Artifact must prove it contains fresh data
 
-**Incident**: a nightly data-refresh cron reported success for months because success = "output file exists". The upstream source had frozen over a year earlier and never errored.
+**Incident**: a nightly data-refresh cron reported success for months because success = "output file exists". The upstream source had frozen over a year earlier and never errored. Later reflection: the first "fix" (check mtime) would not have caught it either — see the mtime caveat below.
 
-**Rule**: success = artifact is **newer than the last expected refresh window** (e.g. mtime within today / last trading day), never just "exists".
+**Rule**: success = the artifact **carries its own proof of new data** — a `generated_at` / `max_date` / monotonic `id` / row count that a frozen upstream cannot fabricate by being copied again. mtime is only a **cheap first screen**: `cp -p`, `rsync -t`, and `touch` all preserve or forge it, and a nightly re-copy of a dead source gets a brand-new mtime.
 
 ```bash
-# cron-visible failure signal:
-find /data/output -name "*.json" -mtime -1 | grep -q . || echo "STALE: no fresh artifact in 24h"
+# BAD: mtime only — freshness is forgeable, and "fresh file" != "fresh data"
+find /data/output -name "*.json" -mtime -1 | grep -q . && echo OK
+
+# GOOD: assert CONTENT — same rule and same incident as silent-failure-sweep §2
+python3 - <<'PY'
+import json, datetime, sys
+WINDOW_H = 26                      # parameterise per cadence; -mtime -1 is wrong for hourly/weekly jobs
+d = json.load(open("/data/output/today.json"))
+ts = d.get("generated_at") or d.get("max_date") or d.get("latest_id")
+ok = ts is not None and datetime.datetime.fromisoformat(ts) > datetime.datetime.now() - datetime.timedelta(hours=WINDOW_H)
+print(("OK " if ok else "STALE ") + f"content_ts={ts}")
+sys.exit(0 if ok else 1)
+PY
 ```
 
+Prefer a monotonic field (max(id), latest date, row count) over any timestamp the upstream writes into the payload — a timestamp can be stale-but-plausible, a max(id) that never advances cannot.
+
 A watchdog cron that only fires on staleness (silent otherwise) is the right shape: quiet when healthy, loud when broken.
+
+**Companion**: `skills/silent-failure-sweep/SKILL.md` §2 applies this same rule as a fleet-wide sweep — use that checklist to audit every job at once, and this pattern when writing the check for a single job.
 
 ## Pattern 3: Probe with real traffic, not process state
 
