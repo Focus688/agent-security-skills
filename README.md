@@ -91,6 +91,17 @@ The rules above are enforced on this repo by CI, not by good intentions:
 
 After editing any `SKILL.md`: `python3 scripts/gen_skill_index.py --write` and commit the updated index.
 
+## Runnable lab: a deliberately bad skill pack
+
+The checklist above is executable, not aspirational. `labs/bad-skill-pack/` holds three synthetic `SKILL.md` files with nine planted defects (name/directory mismatch, missing license, an instruction in the description, unicode hidden content, a self-authorising sentence, an over-broad tool grant, a too-short description, an invisible HTML-comment instruction, a dangling reference):
+
+```bash
+python3 scripts/probe_skill_pack.py labs/bad-skill-pack   # 9 findings, exit 1
+python3 scripts/test_probe_skill_pack.py                  # 9 caught on the bad pack, 0 false positives on this repo's own skills
+```
+
+The second line is the one that matters: a checker that fires on everything is as useless as one that fires on nothing. Nothing here is a real vendor's code, and the probe is shallow by design — pass the mechanical checks and you have still not proved a skill is safe. Details and limits: [`labs/README.md`](labs/README.md).
+
 ## Principles
 
 1. **Every rule comes from a real incident.** If we haven't been burned by it, it's not in here.

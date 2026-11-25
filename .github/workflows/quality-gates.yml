@@ -33,3 +33,6 @@ jobs:
 
       - name: Leak guard
         run: python3 scripts/scan_identifiers.py
+
+      - name: Deliberately bad skill pack is caught, shipped pack is clean
+        run: python3 scripts/test_probe_skill_pack.py
