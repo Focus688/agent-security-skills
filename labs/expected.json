@@ -1,0 +1,15 @@
+{
+  "pack": "labs/bad-skill-pack",
+  "note": "Frozen expectation for scripts/test_probe_skill_pack.py. Each entry is a defect deliberately planted in the fixture, not a real vendor finding.",
+  "findings": [
+    {"file": "hidden-review/SKILL.md", "code": "HIDDEN_CHARS"},
+    {"file": "hidden-review/SKILL.md", "code": "SELF_AUTHORIZING"},
+    {"file": "manifest-packer/SKILL.md", "code": "INJECTION_IN_METADATA"},
+    {"file": "manifest-packer/SKILL.md", "code": "NAME_MISMATCH"},
+    {"file": "manifest-packer/SKILL.md", "code": "NO_LICENSE"},
+    {"file": "manifest-packer/SKILL.md", "code": "OVERBROAD_TOOLS"},
+    {"file": "vague-helper/SKILL.md", "code": "COMMENT_INSTRUCTION"},
+    {"file": "vague-helper/SKILL.md", "code": "DANGLING_REF"},
+    {"file": "vague-helper/SKILL.md", "code": "VAGUE_DESCRIPTION"}
+  ]
+}
