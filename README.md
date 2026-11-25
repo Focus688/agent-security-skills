@@ -79,6 +79,18 @@ Real audits against third-party agent capabilities, with the finding mapped back
 
 Full index, methodology, and the coverage caveats: [`findings/README.md`](findings/README.md). Reports: [Cindy audit](https://focus688.github.io/levi-focus/cindy-audit.html) · [vercel skills audit](https://focus688.github.io/levi-focus/vercel-skills-audit.html).
 
+## Quality gates
+
+The rules above are enforced on this repo by CI, not by good intentions:
+
+- **`scripts/skill_lint.py`** — frontmatter, hidden characters, unauthorised HTML comments (the `skill-review-checklist` checks, turned on ourselves).
+- **`scripts/check_doc_counts.py`** — every stated count (badge, prose, `llms.txt`) must equal the number of `skills/*/SKILL.md` on disk. A README that says "five" after a sixth skill lands is a credibility leak.
+- **`scripts/gen_skill_index.py --check`** — `skills/index.json` must cover every skill, carry a current `sha256`, and route each skill from at least one trigger. An unrouted skill fails the build: installed but never loaded is dead weight.
+- **`scripts/scan_identifiers.py`** — leak guard for secrets, emails, public IPs, absolute home paths, and hashed client identifiers. **Fails closed** if the denylist is missing, empty, or malformed; a guard that silently scans nothing is worse than none.
+- **`scripts/test_scan_identifiers.py`** — 11 cases proving the guard fires on each pattern *and* fails closed.
+
+After editing any `SKILL.md`: `python3 scripts/gen_skill_index.py --write` and commit the updated index.
+
 ## Principles
 
 1. **Every rule comes from a real incident.** If we haven't been burned by it, it's not in here.
@@ -100,6 +112,7 @@ Full index, methodology, and the coverage caveats: [`findings/README.md`](findin
 
 - `AGENTS.md` — conventions for machine readers
 - `llms.txt` — machine-readable index of every skill, reference, and audit
+- `skills/index.json` — routing table: trigger → skill, with a `sha256` per `SKILL.md`. Read it before guessing which skill applies.
 - Sources are first-party operational logs; incident details are reproduced faithfully. If you cite a number (e.g. retry counts), cite it as reported here.
 
 ## License

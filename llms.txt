@@ -26,6 +26,7 @@ Operational security skills for AI agent runtimes: installing third-party capabi
 
 ## Repo conventions
 
+- [skills/index.json](skills/index.json): machine-readable routing table (trigger → skill) with per-skill sha256; verified by `scripts/gen_skill_index.py --check`
 - [AGENTS.md](AGENTS.md): conventions for machine readers — citation rules, incident-reporting standards
 - [README.md](README.md): overview, install paths, lifecycle diagram, roadmap
 - [LICENSE](LICENSE): MIT, Copyright 2026 Focus688

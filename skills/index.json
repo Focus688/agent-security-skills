@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "skills": [
+    {
+      "name": "llm-attack-surface",
+      "path": "skills/llm-attack-surface/SKILL.md",
+      "description": "Map and harden the attack surface of an LLM/agent system: prompt injection (direct/indirect), jailbreak, tool abuse, data exfiltration, and the offense-defense loop. Includes a red-team checklist for auditing your own agent. Framework: OWASP LLM Top 10 + first-party agent-runtime practice.",
+      "sha256": "5bd9fd40712bbd1506ad274da1e3c4cf48029c4790e1b7173cb4bd8ac4cbffc9"
+    },
+    {
+      "name": "mcp-permission-audit",
+      "path": "skills/mcp-permission-audit/SKILL.md",
+      "description": "Audit MCP servers wired into an agent runtime: who can change their code, how many tools they expose, who approves calls, and what can fire while nobody is watching. Companion to secure-addon-install.",
+      "sha256": "c793363714b4816d4fb2a8c73229eb37d55055cfb93e4fe0702fb48d4ae58007"
+    },
+    {
+      "name": "secure-addon-install",
+      "path": "skills/secure-addon-install/SKILL.md",
+      "description": "Safely install third-party skills, plugins, MCP servers, or Python packages into an AI agent runtime: pre-install snapshot, post-install health check, and rollback when things break. War-story driven, agent-agnostic.",
+      "sha256": "66933848a252a7cd752876a5736e8515b836c66194426dfa987459c0e3924252"
+    },
+    {
+      "name": "silent-failure-sweep",
+      "path": "skills/silent-failure-sweep/SKILL.md",
+      "description": "Periodically sweep an agent's cron jobs, scripts, and pipelines for silent failures: swallowed stderr, existence-only success checks, stale artifacts, dead probes. Companion to secure-addon-install.",
+      "sha256": "8ed050f36ab28861c6e5bf249ee53ac58b25e8d8a421a6ee099b4616b171bb05"
+    },
+    {
+      "name": "skill-review-checklist",
+      "path": "skills/skill-review-checklist/SKILL.md",
+      "description": "Deep vetting workflow for third-party SKILL.md packages before they enter an agent runtime: provenance, instruction-level threats, context budget, behavioral traps, and an install/no-install verdict. Companion to secure-addon-install.",
+      "sha256": "5ef04baaf2f9062e8483ec3e9509b49262049dca5cdd2535ccbcc266f9ba6b57"
+    }
+  ],
+  "routes": [
+    {
+      "when": "installing, adding, or updating any skill / plugin / MCP server / python package into a live agent runtime",
+      "skill": "secure-addon-install"
+    },
+    {
+      "when": "an install or update took the gateway, cron, or tooling down and you need a clean rollback",
+      "skill": "secure-addon-install"
+    },
+    {
+      "when": "vetting a third-party SKILL.md or skill pack before it enters the runtime (provenance, instruction threats, context budget)",
+      "skill": "skill-review-checklist"
+    },
+    {
+      "when": "deciding whether an MCP server's permissions, exposed tool count, or unattended actions are acceptable",
+      "skill": "mcp-permission-audit"
+    },
+    {
+      "when": "a cron job or pipeline reports success but the output is stale, empty, or never changes",
+      "skill": "silent-failure-sweep"
+    },
+    {
+      "when": "designing or auditing an LLM/agent attack surface: prompt injection, tool abuse, data exfiltration, supply chain",
+      "skill": "llm-attack-surface"
+    },
+    {
+      "when": "running a periodic maintenance sweep of scheduled jobs, probes, and artifact freshness",
+      "skill": "silent-failure-sweep"
+    }
+  ]
+}

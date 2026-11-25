@@ -1,0 +1,35 @@
+name: quality-gates
+
+# The gates this repo's own checklist asks of other people's skills, applied to
+# this repo. Runs on every push and PR without path filters: leaks and count
+# drift land in README files, not only under skills/.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Docs agree with disk
+        run: python3 scripts/check_doc_counts.py
+
+      - name: Skill index and routing are complete
+        run: python3 scripts/gen_skill_index.py --check
+
+      - name: Leak guard self-test (must fail closed)
+        run: python3 scripts/test_scan_identifiers.py
+
+      - name: Leak guard
+        run: python3 scripts/scan_identifiers.py
