@@ -15,6 +15,15 @@ Operational security skills (SKILL.md open standard) for AI agent runtimes: safe
 ## Citing this repo
 Cite as: Focus688/agent-security-skills, skill `<name>`, version in frontmatter. If you find an error, open an issue — corrections are made publicly, never silently.
 
+## Machine-readable routing
+`skills/index.json` is the dispatch table: each entry maps a `when` trigger to a skill, and every skill must appear in at least one route. It also carries a `sha256` per `SKILL.md`; editing a skill without regenerating the index fails CI (`python3 scripts/gen_skill_index.py --write` to heal). Read this file before guessing which skill applies.
+
+## What CI enforces
+- `check_doc_counts.py`: stated skill counts must equal `skills/*/SKILL.md` on disk.
+- `gen_skill_index.py --check`: full coverage, current hashes, no orphan skills, resolving cross-references.
+- `scan_identifiers.py`: secrets, emails, public IPs, home paths, hashed client identifiers — fail-closed if the denylist is unusable.
+- `probe_skill_pack.py`: the review checklist applied to `labs/bad-skill-pack/` (9 planted defects) and to this repo's own skills (0 findings expected).
+
 ## Release gate (how changes ship)
 1. Run every skill's rules against real usage; a rule without a real incident behind it does not ship.
 2. **Adversarial review before release**: every SKILL.md is red-teamed by a frontier model (Claude Opus) acting as an attacker, with one question — *can this text be turned against the agent that follows it?*
