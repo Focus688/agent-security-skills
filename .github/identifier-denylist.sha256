@@ -1,0 +1,12 @@
+# Identifier denylist for scripts/scan_identifiers.py
+# One sha256 hex digest per line: sha256(<identifier>.strip().lower())
+# Hashes only — the plaintext must never appear in this public file.
+# The scanner FAILS CLOSED if this file is missing, empty, or malformed.
+#
+# To add an identifier without pasting it anywhere:
+#   python3 -c "import hashlib,sys;print(hashlib.sha256(sys.stdin.read().strip().lower().encode()).hexdigest())"
+# then paste the digest below.
+#
+# Named channels / account ids that must never leak into a public commit:
+a7278262dd8b98c1c341f4862d4da297ce5e886f5bf43539624322e895c0cb40
+cdd798448e201b5f6cf16660dcda074be21c5cff208e85edea408ba417d89bdf
