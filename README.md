@@ -105,7 +105,7 @@ The second line is the one that matters: a checker that fires on everything is a
 ## Principles
 
 1. **Every rule comes from a real incident.** If we haven't been burned by it, it's not in here.
-2. **Fake green is the enemy.** A health check that passes while the capability is dead is worse than no check — see `references/health-check-patterns.md`.
+2. **Fake green is the enemy.** A health check that passes while the capability is dead is worse than no check — see [`skills/secure-addon-install/references/health-check-patterns.md`](skills/secure-addon-install/references/health-check-patterns.md).
 3. **Rollback is routine, not failure.** Being able to restore is what makes it safe to install at all.
 
 ## Roadmap

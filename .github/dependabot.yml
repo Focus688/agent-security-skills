@@ -1,0 +1,10 @@
+version: 2
+updates:
+  # 工作流里的 Actions 已固定到 commit SHA；由 dependabot 提 PR 升级 SHA，
+  # 既拿到供应链加固，又不至于版本号停在原地。
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "ci"
